@@ -58,6 +58,21 @@ Use this script to inject the target code into your webpage.
 
 Then browse to http://localhost:8080 to start debugging your page.
 
+### Use the target application's polyfills
+
+Every build produces two target scripts:
+
+- `target.js` includes the `core-js` polyfills bundled by `chobitsu`.
+- `target-nopoly.js` uses the target application's existing `Map`, `Promise`,
+  and `Object.assign` implementations without modifying those globals.
+
+Applications that already provide compatible implementations can load the
+second version directly:
+
+```html
+<script src="//host-machine-ip:8080/target-nopoly.js"></script>
+```
+
 For more detailed usage instructions, please read the documentation at [chii.liriliri.io](https://chii.liriliri.io/docs/)!
 
 ## Related Projects
