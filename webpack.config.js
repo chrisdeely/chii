@@ -1,6 +1,12 @@
 const path = require('path');
 
-module.exports = (env, argv) => {
+const chobitsuEntry = require.resolve('chobitsu');
+const chobitsuCommonJsEntry = path.join(
+  path.dirname(chobitsuEntry),
+  'cjs/index.js'
+);
+
+module.exports = (_env, argv) => {
   const config = {
     target: ['web', 'es5'],
     entry: {
@@ -39,9 +45,35 @@ module.exports = (env, argv) => {
     },
   };
 
+  const noPolyfillConfig = {
+    ...config,
+    name: 'target-nopoly',
+    entry: {
+      'target-nopoly': {
+        import: './src/target.ts',
+        library: {
+          name: 'chii',
+          type: 'umd',
+        },
+      },
+    },
+    resolve: {
+      ...config.resolve,
+      alias: {
+        // The default entry is a prebuilt bundle with core-js embedded. Use the
+        // CommonJS build so webpack can remove chobitsu's global polyfill imports.
+        'chobitsu$': chobitsuCommonJsEntry,
+        'core-js/stable/object/assign$': false,
+        'core-js/stable/promise$': false,
+        'core-js/modules/es.map$': false,
+      },
+    },
+  };
+
   if (argv.mode === 'production') {
     delete config.devtool;
+    delete noPolyfillConfig.devtool;
   }
 
-  return config;
+  return [config, noPolyfillConfig];
 };
